@@ -748,6 +748,7 @@ class Interpreter(Cmd):
             print ("Invalid format.")
             return
         self.emulator.scenario='engineoff'
+        print("THIS IS COLES VERSION")
         print("Emulator scenario switched to '%s'" % self.emulator.scenario)
 
     def do_default(self, arg):
