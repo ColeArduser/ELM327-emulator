@@ -1021,10 +1021,9 @@ ObdMessage = {
             'Descr': 'Vehicle Identification Number',
             'Response': [
                 PA("01 57 50 30 5A 5A 5A 39 39 "
-                   "5A 54 53 33 39 30 30 30 30"),
+                   "5A 54 53 33 39 30 30 30 30")
                 # https://www.autodna.com/vin/WP0ZZZ99ZTS390000, https://it.vin-info.com/libro-denuncia/WP0ZZZ99ZTS390000
-                PA("01 4D 41 54 34 30 33 30 39 "
-                   "36 42 4E 4C 30 30 30 30 30"),  # https://community.carloop.io/t/how-to-request-vin/153/11
+
             ]
         },
         'CALIBRATION_ID_MESSAGE_COUNT': {
@@ -2279,12 +2278,7 @@ ObdMessage = {
             'Request': '^0902' + ELM_FOOTER,
             'Descr': 'Vehicle Identification Number',
             'Response': [
-                PA('01 57 50 30 5A 5A 5A 39 39 5A 54 53 33 39 30 30 30 30'),
-                # https://www.autodna.com/vin/WP0ZZZ99ZTS390000,
-                # https://it.vin-info.com/libro-denuncia/WP0ZZZ99ZTS390000
-                PA('01 4D 41 54 34 30 33 30 39 36 42 4E 4C 30 30 30 30 30'),
-                # https://community.carloop.io/t/how-to-request-vin/153/11
-                PA('01 53 42 31 5A 53 33 4A 45 36 30 45 32 38 32 31 30 32')
+                PA('01 31 43 34 4e 4a 44 43 42 36 43 44 35 30 38 37 36 37'),
             ]
         },
         'CALIBRATION_ID_MESSAGE_COUNT': {
