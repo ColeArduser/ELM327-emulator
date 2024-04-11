@@ -79,7 +79,7 @@ def get_custom_values():
     rpm_values += rpm_start_values
     current_speed = 60
 
-    num_seconds = random.choice(range(5*60, 20*60 + 1, 1))
+    num_seconds = random.choice(range(5*60, 6*60 + 1, 1))
 
     for i in range(0, num_seconds):
         new_speed = current_speed + random.choice(range(-2, 3, 1))
@@ -89,13 +89,20 @@ def get_custom_values():
             new_speed = 80
         if new_speed < current_speed:
             new_rpm = 2000 + random.choice(range(-100, 101, 1))
+        elif new_speed == current_speed:
+            if 50 <= new_speed < 60:
+                new_rpm = 3200 + random.choice(range(-100, 101, 1))
+            elif 60 <= new_speed < 70:
+                new_rpm = 3300 + random.choice(range(-100, 101, 1))
+            else:
+                new_rpm = 3400 + random.choice(range(-100, 101, 1))
         else:
             if 50 <= new_speed < 60:
-                new_rpm = 4000 + random.choice(range(-100, 101, 1))
+                new_rpm = 3400 + random.choice(range(-100, 101, 1))
             elif 60 <= new_speed < 70:
-                new_rpm = 4500 + random.choice(range(-100, 101, 1))
+                new_rpm = 3500 + random.choice(range(-100, 101, 1))
             else:
-                new_rpm = 5000 + random.choice(range(-100, 101, 1))
+                new_rpm = 3700 + random.choice(range(-100, 101, 1))
 
         speed_values.append(new_speed)
         rpm_values.append(new_rpm)
@@ -196,11 +203,34 @@ def int_to_hex(value):
         return_value = '0' + return_value
     return return_value
 
+def int_to_hex_4(value):
+    return_value = f'{value:x}'
+    if len(return_value) == 1:
+        return_value = '00 0' + return_value
+    elif len(return_value) == 2:
+        return_value = '00 ' + return_value
+    elif len(return_value) == 3:
+        return_value = '0' + return_value[0] + ' ' + return_value[1:]
+    elif len(return_value) == 4:
+        return_value = return_value[0:2] + ' ' + return_value[2:]
+    else:
+        return_value = 'ff ff'
+
+    return return_value
+
+def get_maf_values(rpm_values):
+    maf_values = []
+    for rpm in rpm_values:
+        maf = round(rpm * 0.0052, 2)
+        maf_values.append(maf)
+    return maf_values
+
 
 # Custom Values
 CUSTOM_SPEED_VALUES, CUSTOM_RPM_VALUES, CUSTOM_NUMBER_OF_SECONDS = get_custom_values()
 CUSTOM_COOLANT_VALUES = get_coolant_values(CUSTOM_NUMBER_OF_SECONDS)
 CUSTOM_OIL_VALUES = get_oil_values(CUSTOM_NUMBER_OF_SECONDS)
+CUSTOM_MAF_VALUES = get_maf_values(CUSTOM_RPM_VALUES)
 
 
 ObdMessage = {
@@ -1320,35 +1350,8 @@ ObdMessage = {
             'Descr': 'Air Flow Rate (MAF)',
             'Header': ECU_ADDR_E,
             'Response': [
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 18 1F'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 01 46'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 03 0A'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 11 5B'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 00 14'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 02 86'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 03 05'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 10 16'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 00 12'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 10 05'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 01 3B'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 00 51'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 10 20'),
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 04 93')
+                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 10 ' + int_to_hex_4(int(maf*100))) for maf in CUSTOM_MAF_VALUES
                         ]
-            # 61.75 gps
-            # 3.2600000000000002 gps
-            # 7.78 gps
-            # 44.43 gps
-            # 0.2 gps
-            # 6.46 gps
-            # 7.73 gps
-            # 41.18 gps
-            # 0.18 gps
-            # 41.01 gps
-            # 3.15 gps
-            # 0.81 gps
-            # 41.28 gps
-            # 11.71 gps
         },
         'THROTTLE_POS': {
             'Request': '^0111' + ELM_FOOTER,
@@ -1414,7 +1417,7 @@ ObdMessage = {
             'Descr': 'Engine Run Time',
             'Header': ECU_ADDR_E,
             'Response': [
-                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 1F 00 ' + int_to_hex(seconds)) for seconds in range(0, CUSTOM_NUMBER_OF_SECONDS)
+                        HD(ECU_R_ADDR_E) + SZ('04') + DT('41 1F ' + int_to_hex_4(seconds)) for seconds in list(range(1, CUSTOM_NUMBER_OF_SECONDS+1)) + [0]
                         ]
         },
         'PIDS_B': {
