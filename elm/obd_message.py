@@ -227,12 +227,19 @@ def get_maf_values(rpm_values):
         maf_values.append(maf)
     return maf_values
 
+def get_dtc_values(num_seconds):
+    two_thirds = int(num_seconds * 1 / 3)
+    dtc_values = ["00 00"] * two_thirds
+    dtc_values += ["04 57"] * (num_seconds - two_thirds)
+    return dtc_values
+
 
 # Custom Values
 CUSTOM_SPEED_VALUES, CUSTOM_RPM_VALUES, CUSTOM_NUMBER_OF_SECONDS = get_custom_values()
 CUSTOM_COOLANT_VALUES = get_coolant_values(CUSTOM_NUMBER_OF_SECONDS)
 CUSTOM_OIL_VALUES = get_oil_values(CUSTOM_NUMBER_OF_SECONDS)
 CUSTOM_MAF_VALUES = get_maf_values(CUSTOM_RPM_VALUES)
+CUSTOM_DTC_VALUES = get_dtc_values(CUSTOM_NUMBER_OF_SECONDS)
 
 ObdMessage = {
     # AT Commands
@@ -2125,7 +2132,9 @@ ObdMessage = {
             'Request': '^03' + ELM_FOOTER,
             'Descr': 'Get DTCs (Diagnostic Trouble Codes)',
             'Header': ECU_ADDR_E,
-            'Response': HD(ECU_R_ADDR_E) + SZ('02') + DT('43 00')
+            'Response': [
+                HD(ECU_R_ADDR_E) + SZ('04') + DT('43 34 ' + dtc) for dtc in CUSTOM_DTC_VALUES
+            ]
         },
         # -------------------------------------------------------------------
         # Mode 04 Clearing/resetting emission-related malfunction information
